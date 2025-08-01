@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZYNTRA – Dropshipping Team Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles using the ZYNTRA theme */
+        :root {
+            --brand-teal: #1A4E5A;
+            --brand-cream: #F5F1E9;
+            --dark-bg: #1c2527;
+            --card-bg: #232e30;
+            --border-color: #344144;
+            --text-light: #e8e6e3;
+            --text-dark: #a09d98;
+            --done-opacity: 0.5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+        }
+
+        .task-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+            border-color: var(--brand-teal);
+        }
+
+        /* --- Task Completion Styles --- */
+        .task-card.done {
+            opacity: var(--done-opacity);
+        }
+        .task-card.done .task-title {
+            text-decoration: line-through;
+            color: var(--text-dark);
+        }
+        .task-card.done .completion-toggle {
+            background-color: var(--brand-teal);
+            border-color: var(--brand-teal);
+        }
+        .task-card.done .icon-check {
+            display: block;
+        }
+
+        .completion-toggle {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            margin-right: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .completion-toggle:hover {
+            border-color: var(--brand-teal);
+        }
+        .icon-check {
+            display: none;
+            color: white;
+        }
+        
+        .task-content {
+            flex-grow: 1;
+        }
+        
+        /* FIX: Added padding to the right of the title to avoid overlap with the tag */
+        .task-title {
+            padding-right: 70px; /* Space for the role tag */
+        }
+
+        /* --- Filtering and Highlighting --- */
+        .task-card.highlight-ziad {
+            border-left: 4px solid #3b82f6;
+        }
+        .task-card.highlight-muhaned {
+            border-left: 4px solid #10b981;
+        }
+        .task-card.dimmed {
+            opacity: 0.3;
+            transform: scale(0.98);
+        }
+        .task-card.dimmed.done {
+             opacity: 0.25; /* Even more dimmed if done and filtered out */
+        }
+
+
+        .control-btn {
+            background-color: var(--card-bg);
+            color: var(--text-light);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background-color: var(--brand-teal);
+            color: var(--brand-cream);
+        }
+        
+        .control-btn.active {
+            background-color: var(--brand-teal);
+            color: var(--brand-cream);
+            box-shadow: 0 0 15px rgba(26, 78, 90, 0.7);
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--brand-teal);
+            display: inline-block;
+        }
+        
+        .day-marker {
+            background-color: var(--brand-teal);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .role-tag {
+            position: absolute;
+            top: 20px; /* Adjusted position slightly */
+            right: 20px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .role-ziad { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid #3b82f6; }
+        .role-muhaned { background-color: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid #10b981; }
+        .role-both { background-color: rgba(168, 85, 247, 0.1); color: #a855f7; border: 1px solid #a855f7; }
+
+        /* --- Progress Bar --- */
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background-color: var(--card-bg);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: var(--brand-teal);
+            border-radius: 6px;
+            transition: width 0.5s ease-out;
+        }
+        #progress-text {
+            text-align: right;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-6 fade-in">
+            <img src="logo.png" alt="ZYNTRA Logo" class="mx-auto mb-4 h-20 sm:h-24 w-auto">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">ZYNTRA Dropshipping Plan</h1>
+            <p class="text-base sm:text-lg text-gray-400 mt-2">Ziad & Muhaned's 🚀 7-Day Premium Action Plan</p>
+        </header>
+
+        <!-- Progress Bar Section -->
+        <div class="progress-section fade-in" style="animation-delay: 0.1s;">
+            <div class="progress-container">
+                <div id="progress-bar"></div>
+            </div>
+            <div id="progress-text">0/0 tasks completed</div>
+        </div>
+
+        <!-- Controls -->
+        <div id="controls" class="flex justify-center items-center flex-wrap gap-2 sm:space-x-4 mb-12 fade-in" style="animation-delay: 0.2s;">
+            <button class="control-btn active" data-filter="all">Show All</button>
+            <button class="control-btn" data-filter="ziad">Ziad's Tasks</button>
+            <button class="control-btn" data-filter="muhaned">Muhaned's Tasks</button>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div id="plan-container" class="space-y-12">
+            <!-- Sections will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Data for the entire plan with unique IDs for localStorage
+        const planData = {
+            roles: {
+                title: "Role Areas",
+                tasks: [
+                    { id: "product-research", title: "Product Research", owner: "ziad", description: "Find high-margin products on Taager." },
+                    { id: "supplier-liaison", title: "Supplier Liaison", owner: "ziad", description: "Handle stock checks & fulfillment through Taager." },
+                    { id: "order-tracking", title: "Order Tracking", owner: "ziad", description: "Manage delivery status, handle any return issues." },
+                    { id: "profit-calculation", title: "Profit Calculation", owner: "ziad", description: "Track spending, revenue, net profit." },
+                    { id: "ad-creatives", title: "Ad Creatives", owner: "muhaned", description: "Design video/image ads on Canva or CapCut." },
+                    { id: "sales-copy", title: "Sales Copy", owner: "muhaned", description: "Write persuasive product descriptions & captions." },
+                    { id: "campaign-management", title: "Campaign Management", owner: "muhaned", description: "Set up Instagram/Facebook ads + analyze performance." },
+                    { id: "customer-handling", title: "Customer Handling", owner: "muhaned", description: "Respond to DMs, send WhatsApp order links, close deals." },
+                ]
+            },
+            actionPlan: [
+                { day: "Day 0: Setup", tasks: [ { id: "signup-taager", title: "Sign Up at Taager.com", owner: "both", description: "Complete your profile on Taager." }, { id: "upload-id", title: "Upload ID & Payout Method", owner: "ziad", description: "Add national ID and bank/Vodafone Cash details." }, { id: "setup-socials", title: "Set Up Social Accounts", owner: "muhaned", description: "Create Instagram Business, WhatsApp Business, and Facebook Page." } ] },
+                { day: "Day 1: Choose Hot-Selling Products", tasks: [ { id: "filter-bestselling", title: "Use Taager's 'Best-Selling' Filter", owner: "ziad", description: "Check delivery time and seller reviews." }, { id: "research-trends", title: "Research Social Media Trends", owner: "muhaned", description: "Search TikTok/Instagram for viral gadgets, fashion, or home items." }, { id: "select-products", title: "Select Launch Products", owner: "both", description: "Pick 2 products max: one low-cost impulse buy, one mid-range." } ] },
+                { day: "Day 2: Build Your Storefront", tasks: [ { id: "create-posts", title: "Create Product Posts", owner: "muhaned", description: "Set up Instagram Shop and add bio link to WhatsApp." }, { id: "create-sheet", title: "Create Shared Tracking Sheet", owner: "ziad", description: "Use Google Sheets for orders, delivery status, and profit tracking." } ] },
+                { day: "Day 3: First Ads + Soft Launch", tasks: [ { id: "create-ads", title: "Create Video Ads", owner: "muhaned", description: "Create 1-2 short video ads from Taager/TikTok content. Budget ₤E50/day." }, { id: "test-order", title: "Place a Test Order", owner: "ziad", description: "Test the ordering process on Taager and set up notifications." } ] },
+                { day: "Day 4-5: Respond & Deliver", tasks: [ { id: "engage-customers", title: "Engage with Customers", owner: "muhaned", description: "Reply instantly to DMs and comments, using urgency tactics." }, { id: "fulfill-orders", title: "Fulfill Orders", owner: "ziad", description: "Place customer orders on Taager as they come in. Confirm addresses." } ] },
+                { day: "Day 6: Evaluate & Scale", tasks: [ { id: "calc-profit", title: "Calculate Profitability", owner: "ziad", description: "Profit = (Selling Price – Product Cost – Ad Spend)." }, { id: "optimize-ads", title: "Optimize Ad Campaigns", owner: "muhaned", description: "Pause low-performing ads and scale the winners. Collect reviews." } ] },
+                { day: "Day 7: First Revenue + Withdraw", tasks: [ { id: "check-withdraw", title: "Check Delivery Status & Withdraw", owner: "ziad", description: "Go to Taager dashboard, check confirmed deliveries, and request withdrawal." } ] }
+            ]
+        };
+
+        const container = document.getElementById('plan-container');
+        const controls = document.getElementById('controls');
+        const storageKey = 'zyntraTaskStatus';
+
+        // --- State Management (localStorage) ---
+        function saveState() {
+            const status = {};
+            document.querySelectorAll('.task-card').forEach(card => {
+                status[card.dataset.id] = card.classList.contains('done');
+            });
+            localStorage.setItem(storageKey, JSON.stringify(status));
+        }
+
+        function loadState() {
+            const status = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            Object.keys(status).forEach(taskId => {
+                const card = document.querySelector(`.task-card[data-id="${taskId}"]`);
+                if (card && status[taskId]) {
+                    card.classList.add('done');
+                }
+            });
+        }
+
+        // --- Progress Bar Logic ---
+        function updateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const allTasks = document.querySelectorAll('.task-card');
+            const completedTasks = document.querySelectorAll('.task-card.done');
+            
+            const total = allTasks.length;
+            const completed = completedTasks.length;
+            
+            if (total === 0) return;
+
+            const percentage = (completed / total) * 100;
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${completed} / ${total} tasks completed`;
+        }
+
+        // --- Task Card Creation ---
+        function createTaskCard(task, index) {
+            const owner = task.owner || 'team';
+            const card = document.createElement('div');
+            card.className = 'task-card fade-in';
+            card.style.animationDelay = `${index * 50}ms`;
+            card.dataset.owner = owner;
+            card.dataset.id = task.id; // Add unique ID to the element
+
+            let roleTag = '';
+            if (task.owner) {
+                const roleClass = `role-${task.owner}`;
+                const roleName = task.owner.charAt(0).toUpperCase() + task.owner.slice(1);
+                roleTag = `<span class="role-tag ${roleClass}">${roleName}</span>`;
+            }
+
+            card.innerHTML = `
+                <div class="completion-toggle" role="button" aria-label="Mark task as done">
+                    <svg class="icon-check w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <div class="task-content">
+                    ${roleTag}
+                    <h4 class="task-title font-bold text-lg text-white mb-1">${task.title}</h4>
+                    <p class="text-gray-400 text-sm">${task.description}</p>
+                </div>
+            `;
+            return card;
+        }
+
+        // --- Section Rendering ---
+        function renderSection(title, tasks) {
+            const sectionWrapper = document.createElement('div');
+            sectionWrapper.innerHTML = `<h2 class="section-title fade-in">${title}</h2>`;
+            
+            const grid = document.createElement('div');
+            // Responsive grid classes
+            grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+            
+            tasks.forEach((task, index) => {
+                grid.appendChild(createTaskCard(task, index));
+            });
+            
+            sectionWrapper.appendChild(grid);
+            return sectionWrapper;
+        }
+
+        // --- Initial Plan Render ---
+        function renderPlan() {
+            container.innerHTML = ''; // Clear previous content
+            container.appendChild(renderSection(planData.roles.title, planData.roles.tasks));
+
+            const actionPlanSection = document.createElement('div');
+            actionPlanSection.innerHTML = `<h2 class="section-title fade-in">7-Day Premium Action Plan</h2>`;
+            planData.actionPlan.forEach(dayData => {
+                const dayWrapper = document.createElement('div');
+                dayWrapper.className = 'mt-8';
+                dayWrapper.innerHTML = `<h3 class="day-marker fade-in">${dayData.day}</h3>`;
+                
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+                dayData.tasks.forEach((task, index) => grid.appendChild(createTaskCard(task, index)));
+                dayWrapper.appendChild(grid);
+                actionPlanSection.appendChild(dayWrapper);
+            });
+            container.appendChild(actionPlanSection);
+            
+            loadState(); // Load completion status from localStorage
+            updateProgress(); // Initial progress calculation
+        }
+        
+        // --- Interactivity ---
+        // Filter button logic
+        controls.addEventListener('click', (e) => {
+            const target = e.target.closest('.control-btn');
+            if (!target) return;
+
+            const filter = target.dataset.filter;
+
+            controls.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+            target.classList.add('active');
+
+            const allCards = document.querySelectorAll('.task-card');
+            allCards.forEach(card => {
+                const owner = card.dataset.owner;
+                
+                card.classList.remove('dimmed', 'highlight-ziad', 'highlight-muhaned');
+                
+                if (filter !== 'all' && owner !== filter && owner !== 'both' && owner !== 'team') {
+                    card.classList.add('dimmed');
+                }
+                
+                if (!card.classList.contains('dimmed')) {
+                    if(owner === 'ziad') card.classList.add('highlight-ziad');
+                    if(owner === 'muhaned') card.classList.add('highlight-muhaned');
+                }
+            });
+        });
+
+        // Task completion logic
+        container.addEventListener('click', (e) => {
+            const toggle = e.target.closest('.completion-toggle');
+            if (toggle) {
+                const card = toggle.closest('.task-card');
+                card.classList.toggle('done');
+                updateProgress();
+                saveState(); // Save state on change
+            }
+        });
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlan();
+            document.querySelector('[data-filter="all"]').click();
+        });
+
+    </script>
+</body>
+</html>
+
+
